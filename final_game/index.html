@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<style>
+
+.center {
+  margin: auto;
+  width: 60%;
+  border: 3px solid #73AD21;
+  padding: 10px;
+  text-align: center;
+}
+
+.centernb {
+  margin: auto;
+  width: 60%;
+  /*border: 3px solid #73AD21;*/
+  padding: 10px;
+  text-align: center;
+}
+
+.centerchill {
+  margin: auto;
+  width: 60%;
+  /*border: 3px solid #73AD21;*/
+  padding: 10px;
+  text-align: center;
+}
+
+</style>
+<body onload="change_state()">
+
+<div class="page-header centerchill">
+  <h1>Jeu de la vie</h1>
+</div>
+
+<div class="centernb">
+<div class="d-flex justify-content-between">
+      <div id="hap_score">
+         Happiness:
+      </div>
+      <div id="time">
+
+      </div>
+ </div>
+</div>
+
+<!-- This is where you show isntructions -->
+<div id="inst_outter" class="card centernb" style="display:;">
+  <div id = "inst" class="card-body">
+    This is some text within a card body.
+  </div>
+  <!-- <button type="button" id="doneInst" onclick="change_state();" style="width: 25; align-self: center;">Done, I understand</button> -->
+</div>
+
+<br>
+
+<!-- This is where the game goes -->
+<div id="game_div" class="centernb">
+  <iframe id="game_frame">
+    <p>Your browser does not support iframes.</p>
+  </iframe>
+</div>
+
+
+<script type="text/javascript">
+
+  var state = -1
+  var inst = document.getElementById("inst");
+  var insto = document.getElementById("inst_outter");
+  var game_frame = document.getElementById("game_frame");
+  var game_div = document.getElementById("game_div");
+  var score = 0;
+  var counter = 0;
+
+  var games = [
+    {
+      'name': "Introduction to game",
+      'content': "Jeu de la vie, meaning the 'Game of Life' is a story based game that roughly sums up the college life of an average student - you being the student. You have to play multiple mini games that represent the events in your life and in turn affect your happiness level. Better the performance, higher the happiness. Good luck! <br> hello, welcome to your first day in college. you have been assigned a random roommate. unfortunately, you have a roommate who isnt very compatible witu you and you have small challenges in your day to day life. Here is one such challenge: your roommate went to play basketball and locked the door, forgetting that you were taking a bath. your task is to unlock the door by guessing the pin (yes, your college has weird doors). one wrong step, and you are stuck in there till they arrive. <br> Instructions:the pin keeps rotating on a fixed circular ring. click on the screen as soon as it hits the hole."
+    },
+    {
+      'name': "pop the lock roommate issues",
+      'directory': "pop-the-lock/index.html",
+      'height': "960px",
+      'width': "640px",
+      'timer': 90
+    },
+    {
+      'name': "Story + instruction",
+      'content': "no worries, finally you are in your room. slowly, you are getting a hang of your roommate. but things arent always planned. and this strikes you when you first interact with your seniors. you give a nice introduction mentioning your hobbies. but wait, did you just say you played TT before? ahh, that was a trap. now you have to play a game similar to TT, but not the regular one. you have to control both the paddles and and and you can only miss three times. this is a good chance to impress the seniors, dont ruin it. go ahead <br> instructions: left paddle: az, right paddle: arrow keys"
+    },
+    {
+      'name': "pong for ragging",
+      'directory': "pong/index.html",
+      'height': "480px",
+      'width': "640px",
+      'timer': 120
+    },
+    {
+      'name': "Story + instruction",
+      'content': "not bad, not bad. your seniors were somehow impressed with your performance, and you became good friends with them. they helped you with some of your assignments as well. but the time has come for your end sems and they cant help you here. <br> you will have a short puzzle in front of you. you have three questions one after the other. go ahead and try to solve it. <br> instructions: Tap a square and select a direction (upwards, downwards, to the left and to the right). See how the square reacts when they intersect with each other, and build a path to fill the goal square. When you finished, the next question will show up."
+    },
+    {
+      'name': "zhed-1 for CGPA",
+      'directory': "zhed_1/index.html",
+      'height': "1000px",
+      'width': "800px",
+      'timer': 90
+    },
+    {
+      'name': "Story + instruction",
+      'content': "Well, you know how you performed in the exams. No one will bug you regarding it again and you can live peacefully without mentioning it to anyone :P <br> You slowly realize how some of your friends already have tried some kind of toxications. seeing them, makes you want to try something as well. you decide that you will try alcohol for the first time. being the first time, you drink patiently and thankfully dont pass out. you start to leave the place, only to realize that you cant walk properly. roads start to bend and it's difficult to follow. <br> Here is your next challenge: move ahead without colliding with the walls. the longer you stay without colliding, higher is your happiness. <br> Instructions: hold and click towards the right of the pointer to go right, same goes for left. leave the click to go straight. happy hangover!"
+    },
+    {
+      'name': "Radical for drunk walking",
+      'directory': "radical/index.html",
+      'height': "480",
+      'width': "320",
+      'timer': 90
+    },
+    {
+      'name': "Story + instruction",
+      'content': "The year is gradually passing by, but every now and then the thought of having a significant other strikes you. You try to suppress these thoughts, but fail all the time. You're now also starting to hang out less with your friends since they're so busy all the time with their partners. You've decided that now it's time for you to find your partner. <br> Here is your next challenge: at the end of the seemingly unending path is your special one. Stay alive till the end of the clock to achieve your target. <br> Instructions: hold and click to increase power, leave the click to jump. "
+    },
+    {
+      'name': "Spring ninja to get gf",
+      'directory': "spring-ninja/index.html",
+      'height': "480px",
+      'width': "640px",
+      'timer': undefined
+    },
+    {
+      'name': "Story + instruction",
+      'content': "in all the hustle that followed, the year gradually came to an end. But wait, you almost forgot about your exams. You already know what to do, but for the formality, here is how it goes: <br> Instructions: Tap a square and select a direction (upwards, downwards, to the left and to the right). See how the square reacts when they intersect with each other, and build a path to fill the goal square. When you're finished, the next question will show up."
+    },
+    {
+      'name': "zhed-2 for CGPA",
+      'directory': "zhed_2/index.html",
+      'height': "1000px",
+      'width': "800px",
+      'timer': 90
+    },
+    {
+      'name': "Story + instruction",
+      'content': "You decided to focus on your acads in the third year. But that wasn't the case with some of your friends. You've heard them shouting and hooting when you came from the lab back to your hostel. You saw the guard going on his rounds, ready to catch them. You have the power to stop this. Protect your friends at all costs! Your next challenge is to save your friends from the evil guard Papito. More the number of saved friends, higher the happiness. <br> Instructions: press the space bar to make your friends jump as soon as papito arrives. if your friend is in contact with the guard, they are caught. Try and save as many as you can."
+    },
+    {
+      'name': "I hate rabbits to save friends from guard",
+      'directory': "i-hate-rabbits/index.html",
+      'height': "450px",
+      'width': "450px",
+      'timer': undefined
+    },
+    {
+      'name': "Story + instruction",
+      'content': "Well, you tried your best. Don't worry about the ones caught, I have contacts ;) <br> <br> Ohh no, with all this drama going on, you missed the deadline to choose your lab and advisor. Since you are a dual degree student, you absolutely must find an advisor! <br> Go ahead, run again on the endless path. But since you need to hurry this time, you can jump twice in a single go. <br> Instructions: while in air, you can jump again by holding the left click."
+    },
+    {
+      'name': "Spring ninja doube to run from advisor",
+      'directory': "spring-ninja-double-jump/index.html",
+      'height': "480px",
+      'width': "640px",
+      'timer': undefined
+    },
+    {
+      'name': "Story + instruction",
+      'content': "Aaaaaand you know, here are your end semester exams. AGAIN. Good luck! <br> Instructions: Tap a square and select a direction"
+    },
+    {
+      'name': "zhed-3 to calc CGPA",
+      'directory': "zhed_3/index.html",
+      'height': "1000px",
+      'width': "800px",
+      'timer': 120
+    },
+    {
+      'name': "Story + instruction",
+      'content': "Well, it's that time of the year - the weather is quickly changing and you're very very weak. Your body is constantly fighting against all the germs. Since we all know how difficult it is to find a doctor at your campus' health centre (🅱arogya), you need to make sure you don't fall sick. It's time to get inside your body and become the immune system. Make sure you stay as far away as possible from the onslaught of germs. Remember - even coming close to a germ may get you sick! Make sure you do everything in your power to avoid going to (🅱arogya! <br> Instructions - Move your sprite around using arrow keys while avoiding collisions with germs"
+    },
+    {
+      'name': "Run for Barogya",
+      'directory': "run/index.html",
+      'height': "600px",
+      'width': "800px",
+      'timer': 90
+    },
+    {
+      'name': "Story + instruction",
+      'content': "And you know, here are your end semester exams. One. Last. Time. Good luck! <br> Instructions: Tap a square and select a direction"
+    },
+    {
+      'name': "zhed-4 forfinal CGPA",
+      'directory': "zhed_4/index.html",
+      'height': "1000px",
+      'width': "800px",
+      'timer': 120
+    },
+    {
+      'name': "Story + instruction",
+      'content': "Congrats! You've successfully completed Je De La Vie! Are you happy with how happy you are?"
+    }
+  ]
+
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+	function showGame() {
+		game_div.style.visibility = "";
+	}
+
+  function hideGame() {
+    game_div.style.visibility = "hidden";
+  }
+
+  function hideInst() {
+    insto.style.visibility = "hidden";
+    inst.innerHTML = ""
+  }
+
+  function showInst() {
+    insto.style.visibility = "";
+  }
+
+  function timer(t) {
+    counter = t;
+    interval = setInterval(function() {
+    counter--;
+    // Display 'counter' wherever you want to display it.
+    if (counter <= 0) {
+        clearInterval(interval);
+        $('#time').html("<h3>TIME UP!</h3>");
+        endGame();
+        return;
+    }else{
+      str = "Time left: ";
+      $('#time').text(str.concat(counter));
+
+      // console.log("Timer --> " + counter);
+    }
+}, 1000);
+  }
+
+  function change_state() {
+
+    state += 1;
+    console.log("New state: ", state);
+    if (typeof interval !== 'undefined') {
+      clearInterval(interval)
+    }
+
+    if (state%2 == 0) {
+      showInst();
+      hideGame();
+      getInst();
+    } else {
+      hideInst();
+      showGame();
+      getGame();
+    }
+
+  }
+
+  function getGame() {
+    // game_frame = document.getElementById("game_frame");
+    if(state>21) {
+      return;
+    }
+
+    game_frame.src = games[state].directory;
+    game_frame.width = games[state].width;
+    game_frame.height = games[state].height;
+
+
+    if (games[state].timer != undefined) {
+      // alert('test');
+      timer(games[state].timer);
+    }
+
+    game_frame.style.visibility = "";
+    console.log(game_frame);
+    // game_frame.contentWindow.location.reload(true);
+
+  }
+
+  function update_score() {
+    score += Math.round((100 - counter + rand(77, 152))/10)
+    str = "Happiness: "
+    $('#hap_score').text(str.concat(score));
+  }
+  function endGame() {
+    update_score();
+    change_state();
+  }
+
+  function getInst() {
+
+    if (state < 21) {
+      inst.innerHTML = games[state].content.concat(' <br> <button type="button" id="doneInst" onclick="change_state();" style="width: 25; align-self: center;">Done, I understand</button>');
+    } else {
+      inst.innerHTML = games[state].content
+    }
+
+  }
+
+</script>
+
+</body>
+</html>
